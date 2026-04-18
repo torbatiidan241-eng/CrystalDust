@@ -1,0 +1,31 @@
+name: Build CrystalDust
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config libpng-dev
+
+      - name: Install Poryscript
+        run: |
+          go install github.com/huderlem/poryscript@latest
+          sudo cp ~/go/bin/poryscript /usr/local/bin/
+
+      - name: Build ROM
+        run: make -j$(nproc)
+
+      - name: Upload ROM
+        uses: actions/upload-artifact@v4
+        with:
+          name: CrystalDust-ROM
+          path: "*.gba"
+          
